@@ -5,7 +5,7 @@
     <RootNamespace>NeoSmart.Hashing.XXHash</RootNamespace>
     <PackageId>xxHash.Core</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.1</Version>
+    <Version>0.2</Version>
     <Authors>NeoSmart Technologies, Mahmoud Al-Qudsi</Authors>
     <Company>NeoSmart Technologies</Company>
     <Product>xxHash for .NET Core</Product>
@@ -16,7 +16,7 @@
     <RepositoryUrl>https://github.com/neosmart/xxHash.net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>xxHash hash HashAlgorithm xxHash32 xxHash64</PackageTags>
-    <PackageReleaseNotes>Initial release on NuGet.</PackageReleaseNotes>
+    <PackageReleaseNotes>Initial working release on NuGet.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
