@@ -5,7 +5,7 @@ using System.Text;
 namespace NeoSmart.Hashing
 {
     public abstract class HashCore<T, I, R>
-        where T: IHashAlgorithm<R>
+        where T : IHashAlgorithm<R>
         where I : IStreamingHashAlgorithm<R>
     {
         //Core hash function
@@ -71,5 +71,10 @@ namespace NeoSmart.Hashing
         }
 
         public R Result => _incrementalHash.Result;
+
+        public static HashAlgorithmAdapter<T, R> HashAlgorithmAdapter => new HashAlgorithmAdapter<T, R>();
+#if !NETSTANDARD1_3
+        public static StreamingHashAlgorithmAdapter<R> StreamingHashAlgorithmAdapter => new StreamingHashAlgorithmAdapter<R>(default(I), HashSingleton<T, R>.HashLengthBits);
+#endif
     }
 }

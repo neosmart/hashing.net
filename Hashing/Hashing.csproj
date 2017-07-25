@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net20;net40;net46;netstandard1.3</TargetFrameworks>
+    <AssemblyName>NeoSmart.Hashing</AssemblyName>
+    <RootNamespace>NeoSmart.Hashing</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+    <PackageReference Include="System.Security.Cryptography.Algorithms">
+  	  <Version>4.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

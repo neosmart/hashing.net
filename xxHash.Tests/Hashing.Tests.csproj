@@ -7,8 +7,8 @@
     <ProjectGuid>{26B0850C-546D-4479-84DC-104FED692914}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>xxHash.Tests</RootNamespace>
-    <AssemblyName>xxHash.Tests</AssemblyName>
+    <RootNamespace>NeoSmart.Hashing.Tests</RootNamespace>
+    <AssemblyName>NeoSmart.Hashing.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -64,6 +64,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Hashing\Hashing.csproj">
+      <Project>{0058aa99-693c-4d92-bc6e-007c302a3e23}</Project>
+      <Name>Hashing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\xxHash\xxHash.csproj">
       <Project>{f1d4a6e9-092a-438f-9425-2828cd0742fb}</Project>
       <Name>xxHash</Name>

@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NeoSmart.Hashing.XXHash;
 
-namespace xxHash.Tests
+namespace NeoSmart.Hashing.Tests
 {
     [TestClass]
     public class xxHash32Tests

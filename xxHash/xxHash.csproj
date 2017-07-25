@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;net40</TargetFrameworks>
+    <TargetFrameworks>net20;net40;netstandard1.3</TargetFrameworks>
     <RootNamespace>NeoSmart.Hashing.XXHash</RootNamespace>
     <PackageId>xxHash.Core</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -19,10 +19,8 @@
     <PackageReleaseNotes>Initial working release on NuGet.</PackageReleaseNotes>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
-    <PackageReference Include="System.Security.Cryptography.Algorithms">
-		<Version>4.3.0</Version>
-    </PackageReference>
+  <ItemGroup>
+    <ProjectReference Include="..\Hashing\Hashing.csproj" />
   </ItemGroup>
 
 </Project>

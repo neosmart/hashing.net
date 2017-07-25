@@ -11,6 +11,8 @@ namespace NeoSmart.Hashing.XXHash
 
     public struct XXHash64Core : IHashAlgorithm<UInt64>
     {
+        public UInt32 HashLengthBits => 64;
+
         public UInt64 Hash(byte[] input, int offset, int length)
         {
             var state = XXCore.CreateState32();

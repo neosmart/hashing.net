@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace NeoSmart.Hashing
 {
@@ -6,6 +7,8 @@ namespace NeoSmart.Hashing
         where T: IHashAlgorithm<R>
     {
         private static T _hashCore;
+
+        public static UInt32 HashLengthBits => _hashCore.HashLengthBits;
 
         static HashSingleton()
         {
