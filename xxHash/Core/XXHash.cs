@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace NeoSmart.Hashing.XXHash
+namespace NeoSmart.Hashing.XXHash.Core
 {
     [ComVisible(true)]
     public static class XXHash

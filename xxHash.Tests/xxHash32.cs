@@ -37,7 +37,7 @@ namespace xxHash.Tests
                 var buffer = new byte[length];
                 rng.NextBytes(buffer);
 
-                Assert.AreEqual(Trusted32(buffer), LocalHashInOneGo32(buffer));
+                Assert.AreEqual(Trusted32(buffer), XXHash32.Hash(buffer));
             }
         }
 
@@ -61,7 +61,7 @@ namespace xxHash.Tests
                 rng.NextBytes(buffer);
 
                 //Initialize the hash
-                var state = XXHash.CreateState32(0);
+                var state = new XXHash32();
 
                 //generate a hash update with a different size each time
                 var offset = 0;
@@ -69,13 +69,13 @@ namespace xxHash.Tests
                 for (int i = 0; bytesRemaining > 0; i = ((i + 1) % updateLength.Count))
                 {
                     var cycleCount = Math.Min(updateLength[i], bytesRemaining);
-                    XXHash.UpdateState32(state, buffer, offset, cycleCount);
+                    state.Update(buffer, offset, cycleCount);
                     offset += cycleCount;
                     bytesRemaining -= cycleCount;
                 }
 
                 //finalize the hash and compare
-                Assert.AreEqual(Trusted32(buffer), XXHash.DigestState32(state));
+                Assert.AreEqual(Trusted32(buffer), state.Result);
             }
         }
 
@@ -104,20 +104,20 @@ namespace xxHash.Tests
                 rng.NextBytes(buffer);
 
                 //Initialize the hash
-                var state = XXHash.CreateState32(0);
+                var state = new XXHash32();
 
                 var offset = 0;
                 var bytesRemaining = length;
                 while (bytesRemaining > 0)
                 {
                     var cycleCount = Math.Min(streamLength, bytesRemaining);
-                    XXHash.UpdateState32(state, buffer, offset, cycleCount);
+                    state.Update(buffer, offset, cycleCount);
                     offset += cycleCount;
                     bytesRemaining -= cycleCount;
                 }
 
                 //finalize the hash and compare
-                Assert.AreEqual(Trusted32(buffer), XXHash.DigestState32(state));
+                Assert.AreEqual(Trusted32(buffer), state.Result);
             }
         }
 
@@ -132,15 +132,8 @@ namespace xxHash.Tests
                 rng.NextBytes(buffer);
 
                 var seed = (uint)rng.Next();
-                Assert.AreEqual(Trusted32(buffer, seed), LocalHashInOneGo32(buffer, seed));
+                Assert.AreEqual(Trusted32(buffer, seed), XXHash32.Hash(seed, buffer));
             }
-        }
-
-        private static uint LocalHashInOneGo32(byte[] buffer, uint seed = 0)
-        {
-            var state = XXHash.CreateState32(seed);
-            XXHash.UpdateState32(state, buffer);
-            return XXHash.DigestState32(state);
         }
 
         private static uint Trusted32(byte[] buffer, uint seed = 0)
