@@ -16,7 +16,9 @@
     <RepositoryUrl>https://github.com/neosmart/xxHash.net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>xxHash hash HashAlgorithm xxHash32 xxHash64</PackageTags>
-    <PackageReleaseNotes>Initial working release on NuGet.</PackageReleaseNotes>
+    <PackageReleaseNotes>Now using the NeoSmart.Hashing framework.</PackageReleaseNotes>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <FileVersion>0.3.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
