@@ -8,15 +8,15 @@
     <Version>0.2</Version>
     <Authors>NeoSmart Technologies, Mahmoud Al-Qudsi</Authors>
     <Company>NeoSmart Technologies</Company>
-    <Product>xxHash for .NET Core</Product>
-    <Description>A .NET Core port of the xxHash algorithm in 32- and 64-bits with both a standalone and streaming interface.</Description>
+    <Product>xxHash for .NET and .NET Core</Product>
+    <Description>A .NET/.NET Core port of the xxHash algorithm in 32- and 64-bits with both a standalone and streaming interface.</Description>
     <Copyright>Copyright NeoSmart Technologies 2017</Copyright>
-    <PackageLicenseUrl>https://cdn.rawgit.com/neosmart/xxHash.net/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/neosmart/xxHash.net</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/neosmart/xxHash.net</RepositoryUrl>
+    <PackageLicenseUrl>https://cdn.rawgit.com/neosmart/hashing.net/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/neosmart/hashing.net/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/neosmart/hashing.net/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>xxHash hash HashAlgorithm xxHash32 xxHash64</PackageTags>
-    <PackageReleaseNotes>Now using the NeoSmart.Hashing framework.</PackageReleaseNotes>
+    <PackageReleaseNotes>Now using the NeoSmart.Hashing framework for .NET 2.0+ and .NET Core.</PackageReleaseNotes>
     <AssemblyVersion>0.3.0.0</AssemblyVersion>
     <FileVersion>0.3.0.0</FileVersion>
   </PropertyGroup>
