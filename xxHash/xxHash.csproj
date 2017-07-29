@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Hashing\Hashing.csproj" />
+    <PackageReference Include="neosmart.hashing" Version="0.1.0" />
   </ItemGroup>
 
 </Project>
