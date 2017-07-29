@@ -5,7 +5,7 @@
     <RootNamespace>NeoSmart.Hashing.XXHash</RootNamespace>
     <PackageId>xxHash.Core</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.2</Version>
+    <Version>0.3</Version>
     <Authors>NeoSmart Technologies, Mahmoud Al-Qudsi</Authors>
     <Company>NeoSmart Technologies</Company>
     <Product>xxHash for .NET and .NET Core</Product>
