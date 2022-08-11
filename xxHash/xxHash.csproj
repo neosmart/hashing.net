@@ -5,22 +5,24 @@
     <RootNamespace>NeoSmart.Hashing.XXHash</RootNamespace>
     <PackageId>xxHash.Core</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.3</Version>
-    <Authors>NeoSmart Technologies, Mahmoud Al-Qudsi</Authors>
+    <Version>2.0</Version>
+    <Authors>Mahmoud Al-Qudsi, NeoSmart Technologies</Authors>
     <Company>NeoSmart Technologies</Company>
     <Product>xxHash for .NET and .NET Core</Product>
-    <Description>A .NET/.NET Core port of the xxHash algorithm in 32- and 64-bits with both a standalone and streaming interface.</Description>
-    <Copyright>Copyright NeoSmart Technologies 2017</Copyright>
-    <PackageLicenseUrl>https://cdn.rawgit.com/neosmart/hashing.net/master/LICENSE</PackageLicenseUrl>
+    <Description>A high-performance, zero-alloc native .NET/.NET Core port of xxHash, xxHash32, and XXHash64 with both a standalone and streaming interface.</Description>
+    <Copyright>Copyright NeoSmart Technologies 2017-2022</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/neosmart/hashing.net/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/neosmart/hashing.net/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>xxHash hash HashAlgorithm xxHash32 xxHash64</PackageTags>
-    <PackageReleaseNotes>Now using the NeoSmart.Hashing framework for .NET 2.0+ and .NET Core.</PackageReleaseNotes>
-    <AssemblyVersion>0.3.0.0</AssemblyVersion>
-    <FileVersion>0.3.0.0</FileVersion>
+    <PackageTags>xxHash, hash, HashAlgorithm, xxHash32, xxHash64</PackageTags>
+    <PackageReleaseNotes>Zero-alloc hashing with Span support</PackageReleaseNotes>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>Latest</LangVersion>
+	<SignAssembly>True</SignAssembly>
+	<AssemblyOriginatorKeyFile>../NeoSmart.Hashing.snk</AssemblyOriginatorKeyFile>
+	<IncludeSymbols>True</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
