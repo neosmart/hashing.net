@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NeoSmart.Hashing.XXHash.Core
@@ -53,7 +54,9 @@ namespace NeoSmart.Hashing.XXHash.Core
             Original C implementation definition:
               #define XXH_rotl64(x,r) ((x << r) | (x >> (64 - r)))
         */
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static uint  XXH_rotl32(uint  x, int r) { return ((x << r) | (x >> (32 - r))); }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong XXH_rotl64(ulong x, int r) { return ((x << r) | (x >> (64 - r))); }
 
         /*****************************
@@ -86,16 +89,9 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public uint XXH32(Stream inputStream, uint seed)
         {
             State32 state = new State32();
-            try
-            {
-                ResetState32(ref state, seed);
-                UpdateState32(ref state, inputStream);
-                return DigestState32(ref state);
-            }
-            catch
-            {
-                throw;
-            }
+            ResetState32(ref state, seed);
+            UpdateState32(ref state, inputStream);
+            return DigestState32(ref state);
         }
 
         static public ulong XXH64(ReadOnlySpan<byte> input)
@@ -393,7 +389,7 @@ namespace NeoSmart.Hashing.XXHash.Core
              Original C implementation definition:
                typedef struct { long long ll[11]; } XXH64_state_t;
         */
-        [StructLayout(LayoutKind.Sequential)]     // Original C implementation definition:
+        [StructLayout(LayoutKind.Auto)]     // Original C implementation definition:
         public unsafe struct State32          // typedef struct
         {                                         // {
             internal ulong total_len;             //     U64 total_len;
@@ -409,7 +405,7 @@ namespace NeoSmart.Hashing.XXHash.Core
             internal uint memsize;                //     U32 memsize;
         }                                         // } XXH_istate32_t;
 
-        [StructLayout(LayoutKind.Sequential)]     // Original C implementation definition:
+        [StructLayout(LayoutKind.Auto)]     // Original C implementation definition:
         public unsafe struct State64          // typedef struct
         {                                         // {
             internal ulong total_len;             //     U64 total_len;
