@@ -1,80 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
 
 namespace NeoSmart.Hashing
 {
     public abstract class HashCore<T, I, R>
-        where T : IHashAlgorithm<R>
-        where I : IStreamingHashAlgorithm<R>
+        where T : IHashAlgorithm<R>, new()
+        where I : IStreamingHashAlgorithm<R>, new()
+        where R : struct
     {
-        //Core hash function
-        public static R Hash(byte[] input, int offset, int length)
+        public static uint HashLengthBits { get; } = HashSingleton<T, R>.HashLengthBits;
+
+        // Core hash function
+        public static R Hash(ReadOnlySpan<byte> input)
         {
-            return HashSingleton<T, R>.Hash(input, offset, length);
+            return HashSingleton<T, R>.Hash(input);
         }
 
-        //Hash helpers
+        // Hash helpers
         public static R Hash(byte[] input)
         {
             return Hash(input, 0, input.Length);
         }
 
-        public static R Hash(string input)
+        public static R Hash(byte[] input, int offset, int length)
         {
-            return Hash(Encoding.UTF8.GetBytes(input));
+            return Hash(input.AsSpan(offset, length));
         }
 
-        //Seeded hash helper methods
-        public static R Hash(R seed, byte[] input)
+        // Seeded hash helper methods
+        public static R Hash(R seed, ReadOnlySpan<byte> input)
         {
-            return Hash(seed, input, 0, input.Length);
-        }
-
-        public static R Hash(R seed, string input)
-        {
-            var bytes = Encoding.UTF8.GetBytes(input);
-            return Hash(seed, bytes, 0, bytes.Length);
-        }
-
-        public static R Hash(R seed, byte[] input, int offset, int length)
-        {
-            var hasher = default(I);
+            var hasher = new I();
             hasher.Initialize(seed);
-            hasher.Update(input, offset, length);
+            hasher.Update(input);
             return hasher.Result;
         }
 
-        //stateful incremental hash methods
+        public static R Hash(R seed, byte[] input)
+        {
+            return Hash(seed, input.AsSpan(0, input.Length));
+        }
+
+        // Stateful incremental hash methods
         private IStreamingHashAlgorithm<R> _incrementalHash;
 
         public HashCore()
         {
-            _incrementalHash = default(I);
+            _incrementalHash = new I();
             _incrementalHash.Initialize();
         }
 
         public HashCore(R seed)
         {
-            _incrementalHash = default(I);
+            _incrementalHash = new I();
             _incrementalHash.Initialize(seed);
         }
 
-        public void Update(byte[] input)
+        public void Update(ReadOnlySpan<byte> input)
         {
-            Update(input, 0, input.Length);
+            Update(input);
         }
 
         public void Update(byte[] input, int offset, int length)
         {
-            _incrementalHash.Update(input, offset, length);
+            _incrementalHash.Update(input.AsSpan(offset, length));
         }
 
         public R Result => _incrementalHash.Result;
 
         public static HashAlgorithmAdapter<T, R> HashAlgorithmAdapter => new HashAlgorithmAdapter<T, R>();
-#if !NETSTANDARD1_3
-        public static StreamingHashAlgorithmAdapter<R> StreamingHashAlgorithmAdapter => new StreamingHashAlgorithmAdapter<R>(default(I), HashSingleton<T, R>.HashLengthBits);
-#endif
+        public static StreamingHashAlgorithmAdapter<I, R> StreamingHashAlgorithmAdapter => new StreamingHashAlgorithmAdapter<I, R>();
     }
 }

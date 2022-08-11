@@ -1,28 +1,23 @@
-﻿using System;
-using System.Text;
+using System;
 
 namespace NeoSmart.Hashing
 {
     public static class HashSingleton<T,R>
-        where T: IHashAlgorithm<R>
+        where T: IHashAlgorithm<R>, new()
+        where R: struct
     {
-        private static T _hashCore;
+        private static readonly T _hashCore;
 
         public static UInt32 HashLengthBits => _hashCore.HashLengthBits;
 
         static HashSingleton()
         {
-            _hashCore = default(T);
+            _hashCore = new T();
         }
 
-        public static R Hash(byte[] input)
+        public static R Hash(ReadOnlySpan<byte> input)
         {
-            return Hash(input, 0, input.Length);
-        }
-
-        public static R Hash(string input)
-        {
-            return Hash(Encoding.UTF8.GetBytes(input));
+            return _hashCore.Hash(input);
         }
 
         public static R Hash(byte[] input, int offset, int length)

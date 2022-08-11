@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net20;net40;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <RootNamespace>NeoSmart.Hashing.XXHash</RootNamespace>
     <PackageId>xxHash.Core</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -19,10 +19,16 @@
     <PackageReleaseNotes>Now using the NeoSmart.Hashing framework for .NET 2.0+ and .NET Core.</PackageReleaseNotes>
     <AssemblyVersion>0.3.0.0</AssemblyVersion>
     <FileVersion>0.3.0.0</FileVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="neosmart.hashing" Version="0.1.0" />
+    <!--<PackageReference Include="neosmart.hashing" Version="0.1.0" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hashing\Hashing.csproj" />
   </ItemGroup>
 
 </Project>

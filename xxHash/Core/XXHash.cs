@@ -1,4 +1,4 @@
-﻿#define EnableSimpleVersion
+#define EnableSimpleVersion
 #undef  EnableSimpleVersion  // EnableSimpleVersion off
 
 using System;
@@ -43,13 +43,13 @@ namespace NeoSmart.Hashing.XXHash.Core
         /*
         XXH_rotl32() :
             Rotates unsigned 32-bits integer "x" to the left by the number of bits specified in the "r" parameter.
-            
+
             Original C implementation definition:
               #define XXH_rotl32(x,r) ((x << r) | (x >> (32 - r)))
-         
+
         XXH_rotl64() :
             Rotates unsigned 64-bits integer "x" to the left by the number of bits specified in the "r" parameter.
-            
+
             Original C implementation definition:
               #define XXH_rotl64(x,r) ((x << r) | (x >> (64 - r)))
         */
@@ -59,6 +59,11 @@ namespace NeoSmart.Hashing.XXHash.Core
         /*****************************
         *  Simple Hash Functions
         *****************************/
+
+        static public uint XXH32(ReadOnlySpan<byte> input)
+        {
+            return XXH32(input, 0U);
+        }
 
         static public uint XXH32(byte[] input)
         {
@@ -83,9 +88,9 @@ namespace NeoSmart.Hashing.XXHash.Core
             State32 state = new State32();
             try
             {
-                ResetState32(state, seed);
-                UpdateState32(state, inputStream);
-                return DigestState32(state);
+                ResetState32(ref state, seed);
+                UpdateState32(ref state, inputStream);
+                return DigestState32(ref state);
             }
             catch
             {
@@ -93,9 +98,19 @@ namespace NeoSmart.Hashing.XXHash.Core
             }
         }
 
+        static public ulong XXH64(ReadOnlySpan<byte> input)
+        {
+            if (input == null)
+                throw new ArgumentNullException("input");
+
+            return XXH64(input);
+        }
         static public ulong XXH64(byte[] input)
         {
-            return XXH64(input, 0UL);
+            if (input == null)
+                throw new ArgumentNullException("input");
+
+            return XXH64(input.AsSpan(), 0UL);
         }
         static public ulong XXH64(byte[] input, ulong seed)
         {
@@ -106,6 +121,9 @@ namespace NeoSmart.Hashing.XXHash.Core
         }
         static public ulong XXH64(Stream inputStream)
         {
+            if (inputStream == null)
+                throw new ArgumentNullException("inputStream");
+
             return XXH64(inputStream, 0U);
         }
         static public ulong XXH64(Stream inputStream, ulong seed)
@@ -113,9 +131,9 @@ namespace NeoSmart.Hashing.XXHash.Core
             State64 state = new State64();
             try
             {
-                ResetState64(state, seed);
-                UpdateState64(state, inputStream);
-                return DigestState64(state);
+                ResetState64(ref state, seed);
+                UpdateState64(ref state, inputStream);
+                return DigestState64(ref state);
             }
             catch
             {
@@ -123,49 +141,55 @@ namespace NeoSmart.Hashing.XXHash.Core
             }
         }
 
+        static public uint XXH32(byte[] input, int offset, int length, uint seed)
+        {
+            if (offset < 0)
+                ThrowArgumentNonNegativeNumber("offset"); ;
+            if (length < 0)
+                ThrowArgumentNonNegativeNumber("length");
+            if (input.Length < (offset + length))
+                ThrowArrayInvalidOffsetAndLength();
+            if (input.Rank != 1)
+                ThrowArrayMultiRank("input");
+            if (input.GetLowerBound(0) != 0)
+                ThrowArrayNonZeroLowerBound("input");
+
+            return XXH32(input.AsSpan(offset, length), seed);
+        }
+
         /*
         XXH32() :
             Calculate the 32-bits hash of sequence "length" bytes stored at memory address "input".
             The memory between offset & offset+length in "input" must be valid (allocated and read-accessible).
             "seed" can be used to alter the result predictably.
-            
+
             Original C implementation definition:
               unsigned int       XXH32 (const void* input, size_t length, unsigned seed);
-            
+
         XXH64() :
             Calculate the 64-bits hash of sequence "length" bytes stored at memory address "input".
             Faster on 64-bits systems. Slower on 32-bits systems.
-            
+
             Original C implementation definition:
               unsigned long long XXH64 (const void* input, size_t length, unsigned long long seed);
         */
-        static public uint  XXH32(byte[] input, int offset, int length, uint  seed)
+        static public uint  XXH32(ReadOnlySpan<byte> input, uint  seed)
         {
             if (input == null)
                 throw new ArgumentNullException("input");
-            if (input.Rank != 1)
-                ThrowArrayMultiRank("input");
-            if (input.GetLowerBound(0) != 0)
-                ThrowArrayNonZeroLowerBound("input");
-            if (offset < 0)
-                ThrowArgumentNonNegativeNumber("offset");;
-            if (length < 0)
-                ThrowArgumentNonNegativeNumber("length");
-            if (input.Length < (offset + length))
-                ThrowArrayInvalidOffsetAndLength();
 
 #if EnableSimpleVersion
             /* Simple version, good for code maintenance, but unfortunately slow for small inputs */
             State32 state = new State32();
-            ResetState32(state, seed);
-            UpdateState32(state, input, offset, length);
-            return DigestState32(state);
+            ResetState32(ref state, seed);
+            UpdateState32(ref state, input);
+            return DigestState32(ref state);
 #else
-            InputTextStream p = new InputTextStream(input, offset);
-            long bEnd = p.Position + length;
+            InputTextStream p = new InputTextStream(input);
+            long bEnd = p.Position + input.Length;
             uint h32;
 
-            if (length >= 16)
+            if (input.Length >= 16)
             {
                 long limit = bEnd - 16;
                 uint v1 = seed + PRIME32_1 + PRIME32_2;
@@ -200,7 +224,7 @@ namespace NeoSmart.Hashing.XXHash.Core
                 h32 = seed + PRIME32_5;
             }
 
-            h32 += (uint)length;
+            h32 += (uint)input.Length;
 
             while (p.Position + 4 <= bEnd)
             {
@@ -223,6 +247,8 @@ namespace NeoSmart.Hashing.XXHash.Core
             return h32;
 #endif
         }
+
+
         static public ulong XXH64(byte[] input, int offset, int length, ulong seed)
         {
             if (input == null)
@@ -232,24 +258,32 @@ namespace NeoSmart.Hashing.XXHash.Core
             if (input.GetLowerBound(0) != 0)
                 ThrowArrayNonZeroLowerBound("input");
             if (offset < 0)
-                ThrowArgumentNonNegativeNumber("offset"); 
+                ThrowArgumentNonNegativeNumber("offset");
             if (length < 0)
                 ThrowArgumentNonNegativeNumber("length");
             if (input.Length < (offset + length))
                 ThrowArrayInvalidOffsetAndLength();
 
+            return XXH64(input.AsSpan(offset, length), seed);
+        }
+
+        static public ulong XXH64(ReadOnlySpan<byte> input, ulong seed)
+        {
+            if (input == null)
+                throw new ArgumentNullException("input");
+
 #if EnableSimpleVersion
             /* Simple version, good for code maintenance, but unfortunately slow for small inputs */
             State64 state = new State64();
-            ResetState64(state, seed);
-            UpdateState64(state, input, offset, length);
-            return DigestState64(state);
+            ResetState64(ref state, seed);
+            UpdateState64(ref state, input);
+            return DigestState64(ref state);
 #else
-            InputTextStream p = new InputTextStream(input, offset);
-            long bEnd = p.Position + length;
+            InputTextStream p = new InputTextStream(input);
+            long bEnd = p.Position + input.Length;
             ulong h64;
 
-            if (length >= 32)
+            if (input.Length >= 32)
             {
                 long limit = bEnd - 32;
                 ulong v1 = seed + PRIME64_1 + PRIME64_2;
@@ -308,7 +342,7 @@ namespace NeoSmart.Hashing.XXHash.Core
                 h64 = seed + PRIME64_5;
             }
 
-            h64 += (ulong)length;
+            h64 += (ulong)input.Length;
 
             while (p.Position + 8 <= bEnd)
             {
@@ -350,17 +384,17 @@ namespace NeoSmart.Hashing.XXHash.Core
 
         /* These structures allow static allocation of XXH states.
          * States must then be initialized using ResetStateXX() before first use.
-         
+
          class State32 :
              Original C implementation definition:
                typedef struct { long long ll[ 6]; } XXH32_state_t;
-         
+
          class State64 :
              Original C implementation definition:
                typedef struct { long long ll[11]; } XXH64_state_t;
         */
-                                                // Original C implementation definition:
-        public sealed class State32               // typedef struct
+        [StructLayout(LayoutKind.Sequential)]     // Original C implementation definition:
+        public unsafe struct State32          // typedef struct
         {                                         // {
             internal ulong total_len;             //     U64 total_len;
             internal uint seed;                   //     U32 seed;
@@ -368,17 +402,15 @@ namespace NeoSmart.Hashing.XXHash.Core
             internal uint v2;                     //     U32 v2;
             internal uint v3;                     //     U32 v3;
             internal uint v4;                     //     U32 v4;
-            internal byte[] mem32 = null;         //     U32 mem32[4];   /* defined as U32 for alignment */
+            private fixed uint _mem32[4];         //     U32 mem32[4];   /* defined as U32 for alignment */
+            internal Span<byte> mem32 { get { fixed (uint* ptr = _mem32) { return new Span<byte>(ptr, 16); } } }
+            //internal byte[] _mem32;
+            //internal Span<byte> mem32 => _mem32.AsSpan();
             internal uint memsize;                //     U32 memsize;
-                                                  //
-            public bool IsInitialized
-            {
-                get { return mem32 != null; }
-            }
         }                                         // } XXH_istate32_t;
 
-                                                // Original C implementation definition:
-        public sealed class State64               // typedef struct
+        [StructLayout(LayoutKind.Sequential)]     // Original C implementation definition:
+        public unsafe struct State64          // typedef struct
         {                                         // {
             internal ulong total_len;             //     U64 total_len;
             internal ulong seed;                  //     U64 seed;
@@ -386,13 +418,11 @@ namespace NeoSmart.Hashing.XXHash.Core
             internal ulong v2;                    //     U64 v2;
             internal ulong v3;                    //     U64 v3;
             internal ulong v4;                    //     U64 v4;
-            internal byte[] mem64 = null;         //     U64 mem64[4];   /* defined as U64 for alignment */
+            internal fixed ulong _mem64[4];        //     U64 mem64[4];   /* defined as U64 for alignment */
+            internal Span<byte> mem64 { get { fixed (ulong* ptr = _mem64) { return new Span<byte>(ptr, 32); } } }
+            //internal byte[] _mem64;
+            //internal Span<byte> mem64 => _mem64.AsSpan();
             internal uint memsize;                //     U32 memsize;
-                                                  //
-            public bool IsInitialized
-            {
-                get { return mem64 != null; }
-            }
         }                                         // } XXH_istate64_t;
 
         /* These functions create and initialize a XXH state object.
@@ -417,13 +447,13 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public State32 CreateState32(uint  seed)
         {
             State32 value = new State32();
-            ResetState32(value, seed);
+            ResetState32(ref value, seed);
             return value;
         }
         static public State64 CreateState64(ulong seed)
         {
             State64 value = new State64();
-            ResetState64(value, seed);
+            ResetState64(ref value, seed);
             return value;
         }
 
@@ -431,24 +461,24 @@ namespace NeoSmart.Hashing.XXHash.Core
 
         /* These functions calculate the xxHash of an input provided in multiple smaller packets,
          * as opposed to an input provided as a single block.
-         * 
+         *
          * XXH state space must first be allocated.
-         * 
+         *
          * Start a new hash by initializing state with a seed, using ResetStateXX().
-         * 
+         *
          * Then, feed the hash state by calling UpdateStateXX() as many times as necessary.
          * Obviously, input must be valid, meaning allocated and read accessible.
          * The function returns an error code, with 0 meaning OK, and any other value meaning there is an error.
-         * 
+         *
          * Finally, you can produce a hash anytime, by using DigestStateXX().
          * This function returns the final XX-bits hash.
          * You can nonetheless continue feeding the hash state with more input,
          * and therefore get some new hashes, by calling again DigestStateXX().
-         
+
         ResetState32(),
         UpdateState32(),
         DigestState32() :
-            
+
             Original C implementation definition:
               XXH_errorcode XXH32_reset  (XXH32_state_t* statePtr, unsigned seed);
               XXH_errorcode XXH32_update (XXH32_state_t* statePtr, const void* input, size_t length);
@@ -457,40 +487,67 @@ namespace NeoSmart.Hashing.XXHash.Core
         ResetState64(),
         UpdateState64(),
         DigestState64() :
-            
+
             Original C implementation definition:
               XXH_errorcode      XXH64_reset  (XXH64_state_t* statePtr, unsigned long long seed);
               XXH_errorcode      XXH64_update (XXH64_state_t* statePtr, const void* input, size_t length);
               unsigned long long XXH64_digest (const XXH64_state_t* statePtr);
         */
-        static public void ResetState32(State32 state, uint seed)
+        static public void ResetState32(ref State32 state, uint seed)
         {
-            if (state == null)
-                throw new ArgumentNullException("state");
-
-            InternalResetState32(state, seed);
+            InternalResetState32(ref state, seed);
         }
-        static public bool UpdateState32(State32 state, byte[] input)
+        static public bool UpdateState32(ref State32 state, ReadOnlySpan<byte> input)
         {
-            if (state == null)
-                throw new ArgumentNullException("state");
-            if (!state.IsInitialized)
-                ThrowStateUninitialized("state");
             if (input == null)
                 throw new ArgumentNullException("input");
-            if (input.Rank != 1)
-                ThrowArrayMultiRank("input");
-            if (input.GetLowerBound(0) != 0)
-                ThrowArrayNonZeroLowerBound("input");
 
-            return (ErrorCode.XXH_OK == InternalUpdateState32(state, input, 0, input.Length));
+            return (ErrorCode.XXH_OK == InternalUpdateState32(ref state, input));
         }
-        static public bool UpdateState32(State32 state, byte[] input, int offset, int length)
+        static public bool UpdateState32(ref State32 state, ReadOnlySpan<byte> input, int offset, int length)
         {
-            if (state == null)
-                throw new ArgumentNullException("state");
-            if (!state.IsInitialized)
-                ThrowStateUninitialized("state");
+            if (input == null)
+                throw new ArgumentNullException("input");
+            if (offset < 0)
+                ThrowArgumentNonNegativeNumber("offset");
+            if (length < 0)
+                ThrowArgumentNonNegativeNumber("length");
+            if (input.Length < (offset + length))
+                ThrowArrayInvalidOffsetAndLength();
+
+            return (ErrorCode.XXH_OK == InternalUpdateState32(ref state, input.Slice(offset, length)));
+        }
+        static public bool UpdateState32(ref State32 state, Stream inputStream)
+        {
+            if (inputStream == null)
+                throw new ArgumentNullException("inputStream");
+
+            byte[] buffer = new byte[0x2000];
+            int size;
+            do
+            {
+                size = inputStream.Read(buffer, 0, 0x2000);
+                if (size > 0)
+                {
+                    if (InternalUpdateState32(ref state, buffer.AsSpan(0, size)) != ErrorCode.XXH_OK)
+                    {
+                        return false;
+                    }
+                }
+            } while (size > 0);
+            return true;
+        }
+        static public uint DigestState32(ref State32 state)
+        {
+            return InternalDigestState32(ref state);
+        }
+
+        static public void ResetState64(ref State64 state, ulong seed)
+        {
+            InternalResetState64(ref state, seed);
+        }
+        static public bool UpdateState64(ref State64 state, byte[] input, int offset, int length)
+        {
             if (input == null)
                 throw new ArgumentNullException("input");
             if (input.Rank != 1)
@@ -504,9 +561,16 @@ namespace NeoSmart.Hashing.XXHash.Core
             if (input.Length < (offset + length))
                 ThrowArrayInvalidOffsetAndLength();
 
-            return (ErrorCode.XXH_OK == InternalUpdateState32(state, input, offset, length));
+            return UpdateState64(ref state, input.AsSpan(offset, length));
         }
-        static public bool UpdateState32(State32 state, Stream inputStream)
+        static public bool UpdateState64(ref State64 state, ReadOnlySpan<byte> input)
+        {
+            if (input == null)
+                throw new ArgumentNullException("input");
+
+            return (ErrorCode.XXH_OK == InternalUpdateState64(ref state, input));
+        }
+        static public bool UpdateState64(ref State64 state, Stream inputStream)
         {
             if (inputStream == null)
                 throw new ArgumentNullException("inputStream");
@@ -518,7 +582,7 @@ namespace NeoSmart.Hashing.XXHash.Core
                 size = inputStream.Read(buffer, 0, 0x2000);
                 if (size > 0)
                 {
-                    if (InternalUpdateState32(state, buffer, 0, size) != ErrorCode.XXH_OK)
+                    if (InternalUpdateState64(ref state, buffer.AsSpan(0, size)) != ErrorCode.XXH_OK)
                     {
                         return false;
                     }
@@ -526,90 +590,12 @@ namespace NeoSmart.Hashing.XXHash.Core
             } while (size > 0);
             return true;
         }
-        static public uint DigestState32(State32 state)
+        static public ulong DigestState64(ref State64 state)
         {
-            if (state == null)
-                throw new ArgumentNullException("state");
-            if (!state.IsInitialized)
-                ThrowStateUninitialized("state");
-
-            return InternalDigestState32(state);
+            return InternalDigestState64(ref state);
         }
 
-        static public void ResetState64(State64 state, ulong seed)
-        {
-            if (state == null)
-                throw new ArgumentNullException("state");
-
-            InternalResetState64(state, seed);
-        }
-        static public bool UpdateState64(State64 state, byte[] input)
-        {
-            if (state == null)
-                throw new ArgumentNullException("state");
-            if (!state.IsInitialized)
-                ThrowStateUninitialized("state");
-            if (input == null)
-                throw new ArgumentNullException("input");
-            if (input.Rank != 1)
-                ThrowArrayMultiRank("input");
-            if (input.GetLowerBound(0) != 0)
-                ThrowArrayNonZeroLowerBound("input");
-
-            return (ErrorCode.XXH_OK == InternalUpdateState64(state, input, 0, input.Length));
-        }
-        static public bool UpdateState64(State64 state, byte[] input, int offset, int length)
-        {
-            if (state == null)
-                throw new ArgumentNullException("state");
-            if (!state.IsInitialized)
-                ThrowStateUninitialized("state");
-            if (input == null)
-                throw new ArgumentNullException("input");
-            if (input.Rank != 1)
-                ThrowArrayMultiRank("input");
-            if (input.GetLowerBound(0) != 0)
-                ThrowArrayNonZeroLowerBound("input");
-            if (offset < 0)
-                ThrowArgumentNonNegativeNumber("offset");
-            if (length < 0)
-                ThrowArgumentNonNegativeNumber("length");
-            if (input.Length < (offset + length))
-                ThrowArrayInvalidOffsetAndLength();
-
-            return (ErrorCode.XXH_OK == InternalUpdateState64(state, input, offset, length));
-        }
-        static public bool UpdateState64(State64 state, Stream inputStream)
-        {
-            if (inputStream == null)
-                throw new ArgumentNullException("inputStream");
-
-            byte[] buffer = new byte[0x2000];
-            int size;
-            do
-            {
-                size = inputStream.Read(buffer, 0, 0x2000);
-                if (size > 0)
-                {
-                    if (InternalUpdateState64(state, buffer, 0, size) != ErrorCode.XXH_OK)
-                    {
-                        return false;
-                    }
-                }
-            } while (size > 0);
-            return true;
-        }
-        static public ulong DigestState64(State64 state)
-        {
-            if (state == null)
-                throw new ArgumentNullException("state");
-            if (!state.IsInitialized)
-                ThrowStateUninitialized("state");
-
-            return InternalDigestState64(state);
-        }
-
-        static internal void InternalResetState32(State32 state, uint seed)
+        static internal void InternalResetState32(ref State32 state, uint seed)
         {
             state.seed = seed;
             state.v1 = seed + PRIME32_1 + PRIME32_2;
@@ -618,27 +604,31 @@ namespace NeoSmart.Hashing.XXHash.Core
             state.v4 = seed - PRIME32_1;
             state.total_len = 0;
             state.memsize = 0;
-            state.mem32 = new Byte[16];
+            //state.mem32.Fill(0);
+            //state._mem32 = new byte[16];
         }
-        static internal ErrorCode InternalUpdateState32(State32 state, byte[] input, int offset, int length)
+
+        static internal ErrorCode InternalUpdateState32(ref State32 state, ReadOnlySpan<byte> input)
         {
-            InputTextStream p = new InputTextStream(input, offset);
-            long bEnd = p.Position + length;
+            InputTextStream p = new InputTextStream(input);
+            long bEnd = p.Position + input.Length;
 
-            state.total_len += (ulong)length;
+            state.total_len += (ulong)input.Length;
 
-            if (state.memsize + length < 16)   /* fill in tmp buffer */
+            if (state.memsize + input.Length < 16)   /* fill in tmp buffer */
             {
-                Array.Copy(input, offset, state.mem32, (int) state.memsize, length);
-                state.memsize += (uint)length;
+                input.CopyTo(state.mem32.Slice((int)state.memsize));
+                //Array.Copy(input, offset, state.mem32, (int) state.memsize, length);
+                state.memsize += (uint)input.Length;
                 return ErrorCode.XXH_OK;
             }
 
             if (state.memsize > 0)   /* some data left from previous update */
             {
-                Array.Copy(input, offset, state.mem32, (int) state.memsize, (int) (16 - state.memsize));
+                input.Slice(0, (int)(16 - state.memsize)).CopyTo(state.mem32.Slice((int)state.memsize));
+                //Array.Copy(input, offset, state.mem32, (int) state.memsize, (int) (16 - state.memsize));
                 {
-                    InputTextStream p32 = new InputTextStream(state.mem32, 0);
+                    InputTextStream p32 = new InputTextStream(state.mem32);
                     state.v1 = XXH32_round(state.v1, p32.ReadUInt32());
                     state.v2 = XXH32_round(state.v2, p32.ReadUInt32());
                     state.v3 = XXH32_round(state.v3, p32.ReadUInt32());
@@ -673,13 +663,15 @@ namespace NeoSmart.Hashing.XXHash.Core
 
             if (p.Position < bEnd)
             {
-                Array.Copy(input, p.Position, state.mem32, 0, (int) (bEnd - p.Position));
+                input.Slice(p.Position, (int)(bEnd - p.Position)).CopyTo(state.mem32);
+                //Array.Copy(input, p.Position, state.mem32, 0, (int) (bEnd - p.Position));
                 state.memsize = (uint)(bEnd - p.Position);
             }
 
             return ErrorCode.XXH_OK;
         }
-        static internal uint InternalDigestState32(State32 state)
+
+        static internal uint InternalDigestState32(ref State32 state)
         {
             InputTextStream p = new InputTextStream(state.mem32);
             long bEnd = state.memsize;
@@ -724,7 +716,7 @@ namespace NeoSmart.Hashing.XXHash.Core
             return seed;
         }
 
-        static internal void InternalResetState64(State64 state, ulong seed)
+        static internal void InternalResetState64(ref State64 state, ulong seed)
         {
             state.seed = seed;
             state.v1 = seed + PRIME64_1 + PRIME64_2;
@@ -733,27 +725,30 @@ namespace NeoSmart.Hashing.XXHash.Core
             state.v4 = seed - PRIME64_1;
             state.total_len = 0;
             state.memsize = 0;
-            state.mem64 = new Byte[32];
+            //state.mem64.Fill(0);
+            //state._mem64 = new byte[32];
         }
-        static internal ErrorCode InternalUpdateState64(State64 state, byte[] input, int offset, int length)
+        static internal ErrorCode InternalUpdateState64(ref State64 state, ReadOnlySpan<byte> input)
         {
-            InputTextStream p = new InputTextStream(input, offset);
-            long bEnd = p.Position + length;
+            InputTextStream p = new InputTextStream(input);
+            long bEnd = p.Position + input.Length;
 
-            state.total_len += (ulong)length;
+            state.total_len += (ulong)input.Length;
 
-            if (state.memsize + length < 32)   /* fill in tmp buffer */
+            if (state.memsize + input.Length < 32)   /* fill in tmp buffer */
             {
-                Array.Copy(input, offset, state.mem64, (int) state.memsize, length);
-                state.memsize += (uint)length;
+                input.CopyTo(state.mem64.Slice((int)state.memsize));
+                //Array.Copy(input, offset, state.mem64, (int) state.memsize, length);
+                state.memsize += (uint)input.Length;
                 return ErrorCode.XXH_OK;
             }
 
             if (state.memsize > 0)   /* tmp buffer is full */
             {
-                Array.Copy(input, offset, state.mem64, (int) state.memsize, (int) (32 - state.memsize));
+                input.Slice(0, (int)(32 - state.memsize)).CopyTo(state.mem64.Slice((int)state.memsize));
+                //Array.Copy(input, offset, state.mem64, (int) state.memsize, (int) (32 - state.memsize));
                 {
-                    InputTextStream p64 = new InputTextStream(state.mem64, 0);
+                    InputTextStream p64 = new InputTextStream(state.mem64);
                     state.v1 += p64.ReadUInt64() * PRIME64_2;
                     state.v1  = XXH_rotl64(state.v1, 31);
                     state.v1 *= PRIME64_1;
@@ -799,13 +794,14 @@ namespace NeoSmart.Hashing.XXHash.Core
 
             if (p.Position < bEnd)
             {
-                Array.Copy(input, p.Position, state.mem64, 0, (int) (bEnd - p.Position));
+                input.Slice(p.Position, (int)(bEnd - p.Position)).CopyTo(state.mem64);
+                //Array.Copy(input, p.Position, state.mem64, 0, (int) (bEnd - p.Position));
                 state.memsize = (uint)(bEnd - p.Position);
             }
 
             return ErrorCode.XXH_OK;
         }
-        static internal ulong InternalDigestState64(State64 state)
+        static internal ulong InternalDigestState64(ref State64 state)
         {
             InputTextStream p = new InputTextStream(state.mem64);
             long bEnd = state.memsize;
@@ -876,9 +872,9 @@ namespace NeoSmart.Hashing.XXHash.Core
         #region Custom types and functions
 
         // The type provides reading data operations for the byte arrays.
-        struct InputTextStream
+        ref struct InputTextStream
         {
-            private readonly byte[] data;
+            private readonly ReadOnlySpan<byte> data;
             private int _position;
 
             // Gets the length in bytes of the stream.
@@ -886,53 +882,24 @@ namespace NeoSmart.Hashing.XXHash.Core
             {
                 get
                 {
-                    if (this.data != null)
-                    {
-                        return this.data.Length;
-                    }
-                    return 0;
+                    return this.data.Length;
                 }
             }
             // Gets the position within the current stream.
             public int Position
             {
-                get
-                { return _position; }
+                get { return _position; }
             }
             // Gets a value that indicates whether the current stream position is at the end of the stream.
             public bool EndOfStream
             {
-                get
-                { return ((this.data == null) || !(_position < this.data.Length)); }
+                get { return !(_position < this.data.Length); }
             }
 
-            internal InputTextStream(byte[] input)
+            internal InputTextStream(ReadOnlySpan<byte> input)
             {
-                if (input == null)
-                    throw new ArgumentNullException("input");
-                if (input.Rank != 1)
-                    ThrowArrayMultiRank("input");
-                if (input.GetLowerBound(0) != 0)
-                    ThrowArrayNonZeroLowerBound("input");
-
                 this.data = input;
                 _position = 0;
-            }
-            internal InputTextStream(byte[] input, int offset)
-            {
-                if (input == null)
-                    throw new ArgumentNullException("input");
-                if (input.Rank != 1)
-                    ThrowArrayMultiRank("input");
-                if (input.GetLowerBound(0) != 0)
-                    ThrowArrayNonZeroLowerBound("input");
-                if (offset < 0)
-                    ThrowArgumentNonNegativeNumber("offset");
-                if (input.Length < offset)
-                    ThrowArrayInvalidOffset("offset");
-
-                this.data = input;
-                _position = offset;
             }
 
             // Reads a 4-byte unsigned integer from the current stream and advances the position of the stream by
@@ -942,22 +909,24 @@ namespace NeoSmart.Hashing.XXHash.Core
                 if (EndOfStream)
                     throw new InvalidOperationException();
 
-                uint value = BitConverter.ToUInt32(this.data, _position);
+                uint value = MemoryMarshal.Read<UInt32>(data.Slice(_position));
+                System.Diagnostics.Debug.Assert(value == BitConverter.ToUInt32(data.Slice(_position, 4)));
                 Skip(4);
                 return value;
             }
-            // Reads an 8-byte unsigned integer from the current stream and advances the position of the stream by 
+            // Reads an 8-byte unsigned integer from the current stream and advances the position of the stream by
             // eight bytes.
             public ulong ReadUInt64()
             {
                 if (EndOfStream)
                     throw new InvalidOperationException();
 
-                ulong value = BitConverter.ToUInt64(this.data, _position);
+                ulong value = MemoryMarshal.Read<UInt64>(data.Slice(_position));
+                System.Diagnostics.Debug.Assert(value == BitConverter.ToUInt64(data.Slice(_position, 8)));
                 Skip(8);
                 return value;
             }
-            // Reads the next byte from the current stream and advances the current position of the stream by one 
+            // Reads the next byte from the current stream and advances the current position of the stream by one
             // byte.
             public byte ReadByte()
             {

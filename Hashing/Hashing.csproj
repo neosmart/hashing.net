@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net20;net40;net46;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <AssemblyName>NeoSmart.Hashing</AssemblyName>
     <RootNamespace>NeoSmart.Hashing</RootNamespace>
     <Authors>NeoSmart Technologies, Mahmoud Al-Qudsi</Authors>
@@ -19,13 +19,23 @@
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <FileVersion>0.1.0.0</FileVersion>
     <Version>0.1.0.0</Version>
+    <LangVersion>9.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+  <!--<ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>2.2.8</Version>
+    </PackageReference>
     <PackageReference Include="System.Security.Cryptography.Algorithms">
   	  <Version>4.3.0</Version>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>2.2.8</Version>
+    </PackageReference>
+  </ItemGroup>-->
 
 </Project>

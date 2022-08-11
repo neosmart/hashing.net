@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Diagnostics;
-using System.Text;
 using XXCore = NeoSmart.Hashing.XXHash.Core.XXHash;
 
 namespace NeoSmart.Hashing.XXHash
@@ -9,21 +8,23 @@ namespace NeoSmart.Hashing.XXHash
     {
     }
 
-    public struct XXHash32Core : IHashAlgorithm<UInt32>
+    public readonly struct XXHash32Core : IHashAlgorithm<UInt32>
     {
         public UInt32 HashLengthBits => 32;
 
-        public UInt32 Hash(byte[] input, int offset, int length)
+        public UInt32 Hash(ReadOnlySpan<byte> input)
         {
             var state = XXCore.CreateState32();
-            bool result = XXCore.UpdateState32(state, input, offset, length);
+            bool result = XXCore.UpdateState32(ref state, input);
             Debug.Assert(result, "Internal xxHash library error!");
-            return XXCore.DigestState32(state);
+            return XXCore.DigestState32(ref state);
         }
     }
 
-    public struct XXHash32StreamingCore : IStreamingHashAlgorithm<UInt32>
+    public class XXHash32StreamingCore : IStreamingHashAlgorithm<UInt32>
     {
+        public UInt32 HashLengthBits => 32;
+
         private XXCore.State32 _state;
 
         public void Initialize()
@@ -36,11 +37,16 @@ namespace NeoSmart.Hashing.XXHash
             _state = XXCore.CreateState32(seed);
         }
 
-        public void Update(byte[] input, int offset, int length)
+        public void Update(ReadOnlySpan<byte> input)
         {
-            XXCore.UpdateState32(_state, input, offset, length);
+            XXCore.UpdateState32(ref _state, input);
         }
 
-        public UInt32 Result => XXCore.DigestState32(_state);
+        public UInt32 Result => XXCore.DigestState32(ref _state);
+
+        uint IHashAlgorithm<uint>.Hash(ReadOnlySpan<byte> input)
+        {
+            return XXCore.XXH32(input);
+        }
     }
 }

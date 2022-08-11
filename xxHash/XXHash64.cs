@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Diagnostics;
-using System.Text;
 using XXCore = NeoSmart.Hashing.XXHash.Core.XXHash;
 
 namespace NeoSmart.Hashing.XXHash
@@ -9,21 +8,23 @@ namespace NeoSmart.Hashing.XXHash
     {
     }
 
-    public struct XXHash64Core : IHashAlgorithm<UInt64>
+    public readonly struct XXHash64Core : IHashAlgorithm<UInt64>
     {
         public UInt32 HashLengthBits => 64;
 
-        public UInt64 Hash(byte[] input, int offset, int length)
+        public UInt64 Hash(ReadOnlySpan<byte> input)
         {
             var state = XXCore.CreateState32();
-            bool result = XXCore.UpdateState32(state, input, offset, length);
+            bool result = XXCore.UpdateState32(ref state, input);
             Debug.Assert(result, "Internal xxHash library error!");
-            return XXCore.DigestState32(state);
+            return XXCore.DigestState32(ref state);
         }
     }
 
-    public struct XXHash64StreamingCore : IStreamingHashAlgorithm<UInt64>
+    public class XXHash64StreamingCore : IStreamingHashAlgorithm<UInt64>
     {
+        public UInt32 HashLengthBits => 64;
+
         private XXCore.State64 _state;
 
         public void Initialize()
@@ -36,11 +37,16 @@ namespace NeoSmart.Hashing.XXHash
             _state = XXCore.CreateState64(seed);
         }
 
-        public void Update(byte[] input, int offset, int length)
+        public void Update(ReadOnlySpan<byte> input)
         {
-            XXCore.UpdateState64(_state, input, offset, length);
+            XXCore.UpdateState64(ref _state, input);
         }
 
-        public UInt64 Result => XXCore.DigestState64(_state);
+        public UInt64 Result => XXCore.DigestState64(ref _state);
+
+        ulong IHashAlgorithm<ulong>.Hash(ReadOnlySpan<byte> input)
+        {
+            return XXCore.XXH64(input);
+        }
     }
 }

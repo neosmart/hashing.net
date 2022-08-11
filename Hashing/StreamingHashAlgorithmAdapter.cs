@@ -1,20 +1,30 @@
-﻿using System;
+using System;
+using System.Runtime.InteropServices;
 
 namespace NeoSmart.Hashing
 {
-    public class StreamingHashAlgorithmAdapter<R> : System.Security.Cryptography.HashAlgorithm
+    /// <summary>
+    /// An adaptor that automatically implements <see cref="HashAlgorithm"/>
+    /// for any type implementing <see cref="IStreamingHashAlgorithm{R}"/>.
+    ///
+    /// Unlike with <see cref="HashAlgorithmAdapter{T, R}"/>, this has a <see cref="CanReuseTransform"/> value
+    /// of <c>false</c> and a <see cref="CanTransformMultipleBlocks"/> value of <c>true</c>.
+    /// </summary>
+    /// <typeparam name="T">The <see cref="IStreamingHashAlgorithm{R}"/> implementation</typeparam>
+    /// <typeparam name="R">The result returned by the <see cref="IStreamingHashAlgorithm{R}"/> implementation</typeparam>
+    public class StreamingHashAlgorithmAdapter<T,R> : System.Security.Cryptography.HashAlgorithm
+        where T: IStreamingHashAlgorithm<R>, new()
+        where R: struct
     {
         private IStreamingHashAlgorithm<R> _hasher;
-        private readonly UInt32 _hashSize;
-        private byte[] _hash;
-        
-        internal StreamingHashAlgorithmAdapter(IStreamingHashAlgorithm<R> hasher, UInt32 hashSize)
+        private byte[] _result;
+
+        public StreamingHashAlgorithmAdapter()
         {
-            _hasher = hasher;
-            _hashSize = hashSize;
+            _hasher = new T();
         }
 
-        public override int HashSize => (int)(_hashSize);
+        public override int HashSize => (int)(_hasher.HashLengthBits);
 
         public override void Initialize()
         {
@@ -23,19 +33,18 @@ namespace NeoSmart.Hashing
 
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
         {
-            _hasher.Update(array, ibStart, cbSize);
+            _hasher.Update(array.AsSpan(ibStart, cbSize));
         }
 
         protected override byte[] HashFinal()
         {
-            _hash = ByteConverter.ToBytes(_hasher.Result);
-            return _hash;
+            var result = _hasher.Result;
+            var resultBytes = MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref result, 1));
+            return _result = resultBytes.ToArray();
         }
 
-#if !NETSTANDARD1_3
         public override bool CanTransformMultipleBlocks => true;
-        public override bool CanReuseTransform => true;
-        public override byte[] Hash => _hash;
-#endif
+        public override bool CanReuseTransform => false;
+        public override byte[] Hash => _result;
     }
 }

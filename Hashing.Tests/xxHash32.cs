@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NeoSmart.Hashing.XXHash;
@@ -138,6 +138,12 @@ namespace NeoSmart.Hashing.Tests
 
         private static uint Trusted32(byte[] buffer, uint seed = 0)
         {
+            //var xxHash = System.Data.HashFunction.xxHash.xxHashFactory.Instance.Create(new System.Data.HashFunction.xxHash.xxHashConfig()
+            //{
+            //    Seed = seed
+            //});
+            //return BitConverter.ToUInt32(xxHash.ComputeHash(buffer).Hash, 0);
+
             var xxHash = new System.Data.HashFunction.xxHash();
             xxHash.InitVal = seed;
             return BitConverter.ToUInt32(xxHash.ComputeHash(buffer), 0);
