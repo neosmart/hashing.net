@@ -6,7 +6,7 @@ using NeoSmart.Hashing.XXHash;
 namespace NeoSmart.Hashing.Tests
 {
     [TestClass]
-    public class xxHash32Tests
+    public class xxHash64Tests
     {
         private List<int> BufferLengths
         {
@@ -37,7 +37,7 @@ namespace NeoSmart.Hashing.Tests
                 var buffer = new byte[length];
                 rng.NextBytes(buffer);
 
-                Assert.AreEqual(Trusted32(buffer), XXHash32.Hash(buffer));
+                Assert.AreEqual(Trusted64(buffer), XXHash64.Hash(buffer));
             }
         }
 
@@ -61,7 +61,7 @@ namespace NeoSmart.Hashing.Tests
                 rng.NextBytes(buffer);
 
                 //Initialize the hash
-                var state = new XXHash32();
+                var state = new XXHash64();
 
                 //generate a hash update with a different size each time
                 var offset = 0;
@@ -75,7 +75,7 @@ namespace NeoSmart.Hashing.Tests
                 }
 
                 //finalize the hash and compare
-                Assert.AreEqual(Trusted32(buffer), state.Result);
+                Assert.AreEqual(Trusted64(buffer), state.Result);
             }
         }
 
@@ -104,7 +104,7 @@ namespace NeoSmart.Hashing.Tests
                 rng.NextBytes(buffer);
 
                 //Initialize the hash
-                var state = new XXHash32();
+                var state = new XXHash64();
 
                 var offset = 0;
                 var bytesRemaining = length;
@@ -117,7 +117,7 @@ namespace NeoSmart.Hashing.Tests
                 }
 
                 //finalize the hash and compare
-                Assert.AreEqual(Trusted32(buffer), state.Result);
+                Assert.AreEqual(Trusted64(buffer), state.Result);
             }
         }
 
@@ -132,18 +132,18 @@ namespace NeoSmart.Hashing.Tests
                 rng.NextBytes(buffer);
 
                 var seed = (uint)rng.Next();
-                Assert.AreEqual(Trusted32(buffer, seed), XXHash32.Hash(seed, buffer));
+                Assert.AreEqual(Trusted64(buffer, seed), XXHash64.Hash(seed, buffer));
             }
         }
 
-        private static uint Trusted32(byte[] buffer, uint seed = 0)
+        private static ulong Trusted64(byte[] buffer, uint seed = 0)
         {
             var xxHash = System.Data.HashFunction.xxHash.xxHashFactory.Instance.Create(new System.Data.HashFunction.xxHash.xxHashConfig()
             {
-                HashSizeInBits = 32,
+                HashSizeInBits = 64,
                 Seed = seed
             });
-            return BitConverter.ToUInt32(xxHash.ComputeHash(buffer).Hash, 0);
+            return BitConverter.ToUInt64(xxHash.ComputeHash(buffer).Hash, 0);
         }
     }
 }

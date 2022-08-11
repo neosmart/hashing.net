@@ -14,10 +14,10 @@ namespace NeoSmart.Hashing.XXHash
 
         public UInt64 Hash(ReadOnlySpan<byte> input)
         {
-            var state = XXCore.CreateState32();
-            bool result = XXCore.UpdateState32(ref state, input);
+            var state = XXCore.CreateState64();
+            bool result = XXCore.UpdateState64(ref state, input);
             Debug.Assert(result, "Internal xxHash library error!");
-            return XXCore.DigestState32(ref state);
+            return XXCore.DigestState64(ref state);
         }
     }
 
