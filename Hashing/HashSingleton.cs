@@ -2,7 +2,7 @@ using System;
 
 namespace NeoSmart.Hashing
 {
-    public static class HashSingleton<T,R>
+    internal static class HashSingleton<T, R>
         where T: IHashAlgorithm<R>, new()
         where R: struct
     {

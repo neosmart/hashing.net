@@ -1,5 +1,8 @@
 #define EnableSimpleVersion
 #undef  EnableSimpleVersion  // EnableSimpleVersion off
+// The RawPointers implementation is not complete and it's not clear if there are any benefits to it
+#define RawPointers
+#undef RawPointers
 
 using System;
 using System.IO;
@@ -8,7 +11,6 @@ using System.Runtime.InteropServices;
 
 namespace NeoSmart.Hashing.XXHash.Core
 {
-    [ComVisible(true)]
     public static class XXHash
     {
         /***************************************
@@ -398,7 +400,7 @@ namespace NeoSmart.Hashing.XXHash.Core
             internal uint v2;                     //     U32 v2;
             internal uint v3;                     //     U32 v3;
             internal uint v4;                     //     U32 v4;
-            private fixed uint _mem32[4];         //     U32 mem32[4];   /* defined as U32 for alignment */
+            internal fixed uint _mem32[4];         //     U32 mem32[4];   /* defined as U32 for alignment */
             internal Span<byte> mem32 { get { fixed (uint* ptr = _mem32) { return new Span<byte>(ptr, 16); } } }
             //internal byte[] _mem32;
             //internal Span<byte> mem32 => _mem32.AsSpan();
@@ -613,6 +615,16 @@ namespace NeoSmart.Hashing.XXHash.Core
 
             if (state.memsize + input.Length < 16)   /* fill in tmp buffer */
             {
+#if RawPointers
+                unsafe
+                {
+                    fixed (byte *src = input)
+                    fixed (uint *dst = state._mem32)
+                    {
+                        Buffer.MemoryCopy(src, ((byte*) dst) + state.memsize, 16, input.Length);
+                    }
+                }
+#else
                 input.CopyTo(state.mem32.Slice((int)state.memsize));
                 //Array.Copy(input, offset, state.mem32, (int) state.memsize, length);
                 state.memsize += (uint)input.Length;
@@ -865,7 +877,7 @@ namespace NeoSmart.Hashing.XXHash.Core
             return acc;
         }
 
-        #region Custom types and functions
+#region Custom types and functions
 
         // The type provides reading data operations for the byte arrays.
         ref struct InputTextStream
@@ -972,6 +984,6 @@ namespace NeoSmart.Hashing.XXHash.Core
                 "of elements from offset to the end of the array.");
         }
 
-        #endregion
+#endregion
     }
 }

@@ -20,8 +20,9 @@ namespace NeoSmart.Hashing
         private byte[] _result;
         private readonly T _hasher;
 
-        internal HashAlgorithmAdapter()
+        public HashAlgorithmAdapter()
         {
+            _hasher = new T();
         }
 
         public override int HashSize => (int)_hasher.HashLengthBits;
