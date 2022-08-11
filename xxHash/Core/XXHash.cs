@@ -73,7 +73,7 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public uint XXH32(byte[] input, uint seed)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
 
             return XXH32(input, 0, input.Length, seed);
         }
@@ -101,28 +101,28 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public ulong XXH64(ReadOnlySpan<byte> input)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
 
             return XXH64(input);
         }
         static public ulong XXH64(byte[] input)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
 
             return XXH64(input.AsSpan(), 0UL);
         }
         static public ulong XXH64(byte[] input, ulong seed)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
 
             return XXH64(input, 0, input.Length, seed);
         }
         static public ulong XXH64(Stream inputStream)
         {
             if (inputStream == null)
-                throw new ArgumentNullException("inputStream");
+                throw new ArgumentNullException(nameof(inputStream));
 
             return XXH64(inputStream, 0U);
         }
@@ -144,15 +144,15 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public uint XXH32(byte[] input, int offset, int length, uint seed)
         {
             if (offset < 0)
-                ThrowArgumentNonNegativeNumber("offset"); ;
+                ThrowArgumentNonNegativeNumber(nameof(offset)); ;
             if (length < 0)
-                ThrowArgumentNonNegativeNumber("length");
+                ThrowArgumentNonNegativeNumber(nameof(length));
             if (input.Length < (offset + length))
                 ThrowArrayInvalidOffsetAndLength();
             if (input.Rank != 1)
-                ThrowArrayMultiRank("input");
+                ThrowArrayMultiRank(nameof(input));
             if (input.GetLowerBound(0) != 0)
-                ThrowArrayNonZeroLowerBound("input");
+                ThrowArrayNonZeroLowerBound(nameof(input));
 
             return XXH32(input.AsSpan(offset, length), seed);
         }
@@ -176,7 +176,7 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public uint  XXH32(ReadOnlySpan<byte> input, uint  seed)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
 
 #if EnableSimpleVersion
             /* Simple version, good for code maintenance, but unfortunately slow for small inputs */
@@ -252,15 +252,15 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public ulong XXH64(byte[] input, int offset, int length, ulong seed)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             if (input.Rank != 1)
-                ThrowArrayMultiRank("input");
+                ThrowArrayMultiRank(nameof(input));
             if (input.GetLowerBound(0) != 0)
-                ThrowArrayNonZeroLowerBound("input");
+                ThrowArrayNonZeroLowerBound(nameof(input));
             if (offset < 0)
-                ThrowArgumentNonNegativeNumber("offset");
+                ThrowArgumentNonNegativeNumber(nameof(offset));
             if (length < 0)
-                ThrowArgumentNonNegativeNumber("length");
+                ThrowArgumentNonNegativeNumber(nameof(length));
             if (input.Length < (offset + length))
                 ThrowArrayInvalidOffsetAndLength();
 
@@ -270,7 +270,7 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public ulong XXH64(ReadOnlySpan<byte> input, ulong seed)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
 
 #if EnableSimpleVersion
             /* Simple version, good for code maintenance, but unfortunately slow for small inputs */
@@ -500,18 +500,18 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public bool UpdateState32(ref State32 state, ReadOnlySpan<byte> input)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
 
             return (ErrorCode.XXH_OK == InternalUpdateState32(ref state, input));
         }
         static public bool UpdateState32(ref State32 state, ReadOnlySpan<byte> input, int offset, int length)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             if (offset < 0)
-                ThrowArgumentNonNegativeNumber("offset");
+                ThrowArgumentNonNegativeNumber(nameof(offset));
             if (length < 0)
-                ThrowArgumentNonNegativeNumber("length");
+                ThrowArgumentNonNegativeNumber(nameof(length));
             if (input.Length < (offset + length))
                 ThrowArrayInvalidOffsetAndLength();
 
@@ -520,7 +520,7 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public bool UpdateState32(ref State32 state, Stream inputStream)
         {
             if (inputStream == null)
-                throw new ArgumentNullException("inputStream");
+                throw new ArgumentNullException(nameof(inputStream));
 
             byte[] buffer = new byte[0x2000];
             int size;
@@ -549,15 +549,15 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public bool UpdateState64(ref State64 state, byte[] input, int offset, int length)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             if (input.Rank != 1)
-                ThrowArrayMultiRank("input");
+                ThrowArrayMultiRank(nameof(input));
             if (input.GetLowerBound(0) != 0)
-                ThrowArrayNonZeroLowerBound("input");
+                ThrowArrayNonZeroLowerBound(nameof(input));
             if (offset < 0)
-                ThrowArgumentNonNegativeNumber("offset");
+                ThrowArgumentNonNegativeNumber(nameof(offset));
             if (length < 0)
-                ThrowArgumentNonNegativeNumber("length");
+                ThrowArgumentNonNegativeNumber(nameof(length));
             if (input.Length < (offset + length))
                 ThrowArrayInvalidOffsetAndLength();
 
@@ -566,14 +566,14 @@ namespace NeoSmart.Hashing.XXHash.Core
         static public bool UpdateState64(ref State64 state, ReadOnlySpan<byte> input)
         {
             if (input == null)
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
 
             return (ErrorCode.XXH_OK == InternalUpdateState64(ref state, input));
         }
         static public bool UpdateState64(ref State64 state, Stream inputStream)
         {
             if (inputStream == null)
-                throw new ArgumentNullException("inputStream");
+                throw new ArgumentNullException(nameof(inputStream));
 
             byte[] buffer = new byte[0x2000];
             int size;
@@ -939,7 +939,7 @@ namespace NeoSmart.Hashing.XXHash.Core
             public bool Skip(int skipNumBytes)
             {
                 if (skipNumBytes < 0)
-                    throw new ArgumentException();
+                    throw new ArgumentException(nameof(skipNumBytes));
 
                 if (!EndOfStream)
                 {
@@ -974,16 +974,6 @@ namespace NeoSmart.Hashing.XXHash.Core
             throw new ArgumentException(
                 "Offset and length wereout of bounds for the array or count is greater than the number " +
                 "of elements from offset to the end of the array.");
-        }
-        static void ThrowArrayInvalidOffset(string paramName)
-        {
-            throw new ArgumentOutOfRangeException(paramName, "Offset was out of bounds for the array.");
-        }
-        static void ThrowStateUninitialized(string paramName)
-        {
-            throw new ArgumentException(
-                "Specified state is uninitialized. States must then be initialized using ResetStateXX() " +
-                "before first use.", paramName);
         }
 
         #endregion
