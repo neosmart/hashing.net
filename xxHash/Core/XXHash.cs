@@ -1,6 +1,6 @@
 #define EnableSimpleVersion
 #undef  EnableSimpleVersion  // EnableSimpleVersion off
-// The RawPointers implementation is not complete and it's not clear if there are any benefits to it
+// The RawPointers implementation is not complete and it's not clear if there are any benefits to it (see https://godbolt.org/z/9zPaaaqsn)
 #define RawPointers
 #undef RawPointers
 
@@ -57,9 +57,19 @@ namespace NeoSmart.Hashing.XXHash.Core
               #define XXH_rotl64(x,r) ((x << r) | (x >> (64 - r)))
         */
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static uint  XXH_rotl32(uint  x, int r) { return ((x << r) | (x >> (32 - r))); }
+#if NETCOREAPP3_0_OR_GREATER
+        // The compiler should recognize the bitshift pattern as an x86 rol, but just in case:
+        static uint XXH_rotl32(uint x, int r) => System.Numerics.BitOperations.RotateLeft(x, r);
+#else
+        static uint  XXH_rotl32(uint x, int r) => ((x << r) | (x >> (32 - r)));
+#endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static ulong XXH_rotl64(ulong x, int r) { return ((x << r) | (x >> (64 - r))); }
+#if NETCOREAPP3_0_OR_GREATER
+        // The compiler should recognize the bitshift pattern as an x86 rol, but just in case:
+        static ulong XXH_rotl64(ulong x, int r) => System.Numerics.BitOperations.RotateLeft(x, r);
+#else
+        static ulong XXH_rotl64(ulong x, int r) => ((x << r) | (x >> (64 - r)));
+#endif
 
         /*****************************
         *  Simple Hash Functions
@@ -627,6 +637,7 @@ namespace NeoSmart.Hashing.XXHash.Core
 #else
                 input.CopyTo(state.mem32.Slice((int)state.memsize));
                 //Array.Copy(input, offset, state.mem32, (int) state.memsize, length);
+#endif
                 state.memsize += (uint)input.Length;
                 return ErrorCode.XXH_OK;
             }
@@ -886,23 +897,13 @@ namespace NeoSmart.Hashing.XXHash.Core
             private int _position;
 
             // Gets the length in bytes of the stream.
-            public int Length
-            {
-                get
-                {
-                    return this.data.Length;
-                }
-            }
+            public int Length => data.Length;
+
             // Gets the position within the current stream.
-            public int Position
-            {
-                get { return _position; }
-            }
+            public int Position => _position;
+
             // Gets a value that indicates whether the current stream position is at the end of the stream.
-            public bool EndOfStream
-            {
-                get { return !(_position < this.data.Length); }
-            }
+            public bool EndOfStream => !(_position < this.data.Length);
 
             internal InputTextStream(ReadOnlySpan<byte> input)
             {
@@ -918,7 +919,6 @@ namespace NeoSmart.Hashing.XXHash.Core
                     throw new InvalidOperationException();
 
                 uint value = MemoryMarshal.Read<UInt32>(data.Slice(_position));
-                System.Diagnostics.Debug.Assert(value == BitConverter.ToUInt32(data.Slice(_position, 4)));
                 Skip(4);
                 return value;
             }
@@ -930,7 +930,6 @@ namespace NeoSmart.Hashing.XXHash.Core
                     throw new InvalidOperationException();
 
                 ulong value = MemoryMarshal.Read<UInt64>(data.Slice(_position));
-                System.Diagnostics.Debug.Assert(value == BitConverter.ToUInt64(data.Slice(_position, 8)));
                 Skip(8);
                 return value;
             }

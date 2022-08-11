@@ -15,12 +15,6 @@ namespace NeoSmart.Hashing
             return HashSingleton<T, R>.Hash(input);
         }
 
-        // Hash helpers
-        public static R Hash(byte[] input)
-        {
-            return Hash(input, 0, input.Length);
-        }
-
         public static R Hash(byte[] input, int offset, int length)
         {
             return Hash(input.AsSpan(offset, length));
@@ -33,11 +27,6 @@ namespace NeoSmart.Hashing
             hasher.Initialize(seed);
             hasher.Update(input);
             return hasher.Result;
-        }
-
-        public static R Hash(R seed, byte[] input)
-        {
-            return Hash(seed, input.AsSpan(0, input.Length));
         }
 
         // Stateful incremental hash methods
