@@ -1,14 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <PackageId>NeoSmart.Hashing</PackageId>
     <AssemblyName>NeoSmart.Hashing</AssemblyName>
     <RootNamespace>NeoSmart.Hashing</RootNamespace>
     <Authors>Mahmoud Al-Qudsi, NeoSmart Technologies</Authors>
     <Company>NeoSmart Technologies</Company>
     <Product>NeoSmart.Hashing</Product>
     <Description>Hashing library abstraction, used by various implementations. Contains adapters for System.Security.Cryptography.HashAlgorithm for both streaming and standalone hashing.</Description>
-    <Copyright>Copyright NeoSmart Technologies 2017-2022</Copyright>
+    <Copyright>Copyright NeoSmart Technologies 2017-2023</Copyright>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/neosmart/hashing.net/</PackageProjectUrl>
     <PackageIconUrl />
@@ -16,7 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>hashing, hash, HashAlgorithm</PackageTags>
     <PackageReleaseNotes>New API with support for zero-alloc hashing, requiring Span support for all hashing algorithms.</PackageReleaseNotes>
-    <Version>2.0</Version>
+    <Version>2.0.1</Version>
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>True</SignAssembly>

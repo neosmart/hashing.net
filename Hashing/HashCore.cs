@@ -46,7 +46,7 @@ namespace NeoSmart.Hashing
 
         public void Update(ReadOnlySpan<byte> input)
         {
-            Update(input);
+            _incrementalHash.Update(input);
         }
 
         public void Update(byte[] input, int offset, int length)

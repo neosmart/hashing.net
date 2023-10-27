@@ -5,7 +5,7 @@
     <RootNamespace>NeoSmart.Hashing.XXHash</RootNamespace>
     <PackageId>xxHash.Core</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0</Version>
+    <Version>2.0.0</Version>
     <Authors>Mahmoud Al-Qudsi, NeoSmart Technologies</Authors>
     <Company>NeoSmart Technologies</Company>
     <Product>xxHash for .NET and .NET Core</Product>
@@ -26,11 +26,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!--<PackageReference Include="neosmart.hashing" Version="0.1.0" />-->
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Hashing\Hashing.csproj" />
+    <PackageReference Include="neosmart.hashing" Version="2.0" />
+    <!--<ProjectReference Include="..\Hashing\Hashing.csproj" />-->
   </ItemGroup>
 
 </Project>
